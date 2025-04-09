@@ -99,13 +99,40 @@ import {
   Textarea,
   Button,
   toast,
-  Toaster
+  Toaster,
+  DropdownMenu
 } from "@medusajs/ui"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery,refetch } from "@tanstack/react-query"
 import { sdk } from "../../../admin/lib/sdk"
-import { Plus } from "@medusajs/icons"
-// import { IconButton } from "@medusajs/ui"
 import { useState } from "react"
+import { EllipsisHorizontal, PencilSquare, Plus, Trash } from "@medusajs/icons"
+export function ActionsMenu({dataId,handleDelete}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <IconButton>
+          <EllipsisHorizontal />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <DropdownMenu.Item className="gap-x-2">
+          <PencilSquare className="text-ui-fg-subtle" />
+          Edit
+        </DropdownMenu.Item>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item data-id={dataId} onClick={async (e)=>{
+          console.log("gmm",e.currentTarget.dataset.id)
+          const currentId = e.currentTarget.dataset.id || null
+          handleDelete(e,currentId);
+          
+        }} className="gap-x-2">
+          <Trash className="text-ui-fg-subtle" />
+          Delete
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  )
+}
 
 
 const ReviewsPage = () => {
@@ -123,6 +150,24 @@ const ReviewsPage = () => {
       return response
     },
   })
+  const handleDelete  = async (e,currentId)=>{
+    e.preventDefault();
+    try {
+      const response = await sdk.client.fetch("/admin/reviews", {
+        method: "DELETE",
+        body:{
+          id:currentId,
+        }
+
+      })
+      console.log("response from bckend",response);
+      refetch()
+    }
+    catch(e)
+    {
+      console.log("Error while deleteing");
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -139,7 +184,6 @@ const ReviewsPage = () => {
       })
       console.log(response,"-=+++++")
       if (response.status === "success") {
-        debugger
         // Review created successfully
         console.log("Review created successfully")
         toast.info(response.status, {
@@ -258,6 +302,8 @@ const ReviewsPage = () => {
             <Table.HeaderCell>Title</Table.HeaderCell>
             <Table.HeaderCell>Description</Table.HeaderCell>
             <Table.HeaderCell>User</Table.HeaderCell>
+            <Table.HeaderCell></Table.HeaderCell>
+
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -273,6 +319,7 @@ const ReviewsPage = () => {
                 <Table.Cell>{review.title}</Table.Cell>
                 <Table.Cell>{review.description}</Table.Cell>
                 <Table.Cell>{review.user_id}</Table.Cell>
+                <Table.Cell><ActionsMenu handleDelete={handleDelete} dataId={review.id}/></Table.Cell>
               </Table.Row>
             ))
           ) : (

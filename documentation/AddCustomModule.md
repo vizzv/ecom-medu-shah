@@ -12,6 +12,8 @@ Modules generally represent any feature of eccom.
 - /modules/new-module/models (A)
 - /medusa-config.ts (M)
 
+*(A = Added, M = Modified, D = Deleted)*
+
 ## 🛠️ Steps
 1.  First create a dir for module in modules dir. 
 ```

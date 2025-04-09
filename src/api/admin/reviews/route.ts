@@ -111,3 +111,30 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     })
   }
 }
+
+export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
+  try {
+    console.log("in delete block")
+    console.log("Request body:", req.body)
+    const reviewModuleService = req.scope.resolve(REVIEW_MODULE)
+    // Post reviews from the database
+    const reviews = await reviewModuleService.deleteReviews(req.body)
+    console.info("reviews",reviews)
+
+    return res.status(204).json({
+      status: "success",
+      reviews,
+      count: reviews.length,
+      message: "Reviews deleted successfully"
+    })
+
+
+    // Return the reviews as JSON response
+  } catch (error) {
+    console.error("Error Posting reviews:", error)
+    return res.status(500).json({
+      message: "An error occurred while fetching reviews",
+      error: error.message
+    })
+  }
+}
